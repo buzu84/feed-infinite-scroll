@@ -21,7 +21,6 @@ const Container = styled.div`
       padding: 10px 0px;
       border-top: 1px solid blue;
 
-
       :first-of-type {
         border-top: none;
       }
@@ -54,7 +53,7 @@ const Posts = () => {
   }, []);
 
   const fetchMoreData = () => {
-    fetch(`${API}?_page=${page}`)
+    fetch(`${API}?_page=${page + 1}`)
     .then(response => response.json())
     .then(response => {
       setPage(page + 1);
@@ -77,6 +76,7 @@ const Posts = () => {
       pageStart={0}
       loadMore={fetchMoreData}
       hasMore={hasMoreItems}
+      initialLoad={false}
       loader={<div className="loader" key={0}><Spinner /></div>}
       >
         <ul>
@@ -85,7 +85,7 @@ const Posts = () => {
               <li key={post.date}>
                 <a href={post.url} target="blank"><h2>{post.date}  {post.title}</h2></a>
                 <a href={post.url} target="blank"><img src={post.thumb} alt={post.title} /></a>
-                <a href={post.url} target="blank"><p> {post.excerpt}</p></a>
+                <a href={post.url} target="blank"><p>{post.excerpt}</p></a>
               </li>
             )
           })}
