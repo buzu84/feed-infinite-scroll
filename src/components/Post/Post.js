@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  width: 700px;
+  width: 80vw;
   margin: 0 auto;
 
   ul {
@@ -24,8 +24,12 @@ const Container = styled.div`
       :first-of-type {
         border-top: none;
       }
-      img {
-        width: 660px;
+      a, a:hover, a:focus, a:active {
+        text-decoration: none;
+        color: inherit;
+      }
+      img{
+        width: calc(80vw - 40px);
       }
     }
   }
@@ -35,28 +39,33 @@ const Container = styled.div`
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
+  const [page, setPage] = useState(1);
 
   const API = "http://localhost:3004/posts";
 
-  // useEffect(() => {
-  //   fetch(`${API}`)
-  //   .then(response => response.json())
-  //   .then(response => setPosts(response))
-  //   .then(console.log("posts; ", posts))
-  //   .catch(error => {
-  //     console.log("There was an error with request: ", error);
-  //   });
-  // }, []);
-
-  const fetchMoreData = () => {
-    fetch(`${API}`)
+  useEffect(() => {
+    fetch(`${API}?_page=${page}`)
     .then(response => response.json())
     .then(response => setPosts(response))
     .catch(error => {
       console.log("There was an error with request: ", error);
     });
-  };
+  }, []);
 
+  const fetchMoreData = () => {
+    fetch(`${API}?_page=${page + 1}`)
+    .then(response => response.json())
+    .then(response => {
+      setPage(page + 1);
+      if (response.length === 0) {
+        setHasMoreItems(false);
+      }
+      return setPosts(posts.concat(response))
+    })
+    .catch(error => {
+      console.log("There was an error with request: ", error);
+    });
+  };
 
   if (posts === []) {
     return <Spinner />
@@ -67,15 +76,16 @@ const Posts = () => {
       pageStart={0}
       loadMore={fetchMoreData}
       hasMore={hasMoreItems}
+      initialLoad={false}
       loader={<div className="loader" key={0}><Spinner /></div>}
       >
         <ul>
           {posts.map(post => {
             return (
-              <li className="post_element" key={post.date}>
-                <a href={post.url} target="blank"><h2 className="event_name">{post.date}  {post.title}</h2></a>
-                <img className="picture" src={post.thumb} alt={post.title} />
-                <p className="peak_hour"> {post.excerpt}</p>
+              <li key={post.date}>
+                <a href={post.url} target="blank"><h2>{post.date}  {post.title}</h2></a>
+                <a href={post.url} target="blank"><img src={post.thumb} alt={post.title} /></a>
+                <a href={post.url} target="blank"><p>{post.excerpt}</p></a>
               </li>
             )
           })}
